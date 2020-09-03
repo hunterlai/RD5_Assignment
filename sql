@@ -9,3 +9,5 @@ create table users(
     phone char(10),
     passwd varchar(64)
 );
+
+

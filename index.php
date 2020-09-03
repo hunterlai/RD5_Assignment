@@ -1,11 +1,17 @@
 <?php
 require "condb.php";
-session_start();
+// $out=$_GET["logout"];
+if(isset($_GET["logout"])){
+    session_start();
+    session_unset();
+    session_destroy();
+    header("location: index.php");
+    exit();
+}
 if(isset($_POST["okbtn"])){
     $password=$_POST["npassword"];
     $email=$_POST["email"];
     $userName=$_POST["nusername"];
-    $_SESSION["name"]=$userName;
     $phone=$_POST["phone"];
     $birth=$_POST["birth"];
     $options=[
@@ -20,13 +26,16 @@ if(isset($_POST["okbtn"])){
 }
 if(isset($_POST["homebtn"])){
     $suser=$_POST["username"];
-    $upassword=$_POST["username"];
-    $auth="select passwd from users where userName= '$suser'";
+    $upassword=$_POST["password"];
+    $auth="select passwd from users where userName= '$suser' or  email='$suser' ";
     // echo $auth;
     $result_auth=mysqli_query($link,$auth);
     $row=mysqli_fetch_assoc($result_auth);
     if(password_verify($upassword,$row["passwd"])){
-        echo "right";
+        session_start();
+        $_SESSION["name"]=$suser;
+        // echo "right";
+        header("location: account.php");
     }else{
         echo "wrong";
     }
@@ -49,7 +58,7 @@ if(isset($_POST["homebtn"])){
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet">
- 
+    
 </head>
 <body>
     <script src="js/jquery.min.js"></script>
@@ -61,20 +70,22 @@ if(isset($_POST["homebtn"])){
     
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a href="#tab1" data-toggle="tab" class="nav-link  ">登入</a>
+            <a href="#tab1" data-toggle="tab" class="nav-link active">登入</a>
         </li>
         <li class="nav-item">
-            <a href="#tab2" data-toggle="tab" class="nav-link active">註冊</a>
+            <a href="#tab2" data-toggle="tab" class="nav-link ">註冊</a>
         </li>
     </ul>
-    <div class="tab-content">
-        <div id="tab1" class="container tab-pane">
+    <div class="tab-content ">
+        <div id="tab1" class="container tab-pane active">
         <p>
         <form method="post">
         <div class="form-group">
             <label for="username">user</label>
             <input type="text" class="form-control" id="username" name="username" placeholder="username or email">
+
         </div>
+        
         <div class="form-group">
             <label for="password">Password</label>
             <input type="password" class="form-control" id="password" name="password" placeholder="password">
@@ -87,7 +98,7 @@ if(isset($_POST["homebtn"])){
         </form>
         </p>
         </div>
-        <div id="tab2" class="container tab-pane active">
+        <div id="tab2" class="container tab-pane fade">
         <p>
         <form method="post">
         <div class="form-row">
