@@ -1,6 +1,5 @@
 <?php
 require "condb.php";
-// $out=$_GET["logout"];
 if(isset($_GET["logout"])){
     session_start();
     session_unset();
@@ -22,26 +21,35 @@ if(isset($_POST["okbtn"])){
     values ('$email','$userName',$birth,'$phone','$hash')";
     // echo $sql;
     $result=mysqli_query($link,$sql);
-
+    $search="select userId from users";
+    $result_new=mysqli_query($link,$search);
+    $row_user=mysqli_fetch_assoc($result_new);
+    $newId=$row_user["userId"];
+    $sql2="insert into user_account (userId,accountName,phone,balance,showb)
+    values ($newId,'$userName','$phone',1000,1)";
+    $result_account=mysqli_query($link,$sql2);
 }
 if(isset($_POST["homebtn"])){
     $suser=$_POST["username"];
     $upassword=$_POST["password"];
-    $auth="select passwd from users where userName= '$suser' or  email='$suser' ";
+    $auth="select passwd,userId from users where userName= '$suser' or  email='$suser' ";
     // echo $auth;
     $result_auth=mysqli_query($link,$auth);
     $row=mysqli_fetch_assoc($result_auth);
+    $id=$row["userId"];
     if(password_verify($upassword,$row["passwd"])){
         session_start();
         $_SESSION["name"]=$suser;
+        $_SESSION["id"]=$id;
         // echo "right";
         header("location: account.php");
     }else{
         echo "wrong";
     }
-    
 }
-
+session_start();
+while(($authnum=rand()%100000)<10000);
+$_SESSION['authnum']=$authnum;
 
 
 ?>
@@ -58,7 +66,23 @@ if(isset($_POST["homebtn"])){
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    
+    <script type="text/javascript" src="./jquery.min.js"></script>
+    <script type="text/javascript" >
+        $(document).ready(test);
+        function test(){
+            $("#auth").on("click",
+            function(){ 
+                if($("#authinput").val()==<?php echo $authnum;?>){
+                    $("#YorN").val("驗證碼正確！");
+                    $("#homebtn").prop("disabled",false);
+                }else{
+                    $("#YorN").val("驗證碼錯誤！");
+                }
+            });
+        }
+        
+    </script>
+
 </head>
 <body>
     <script src="js/jquery.min.js"></script>
@@ -90,13 +114,21 @@ if(isset($_POST["homebtn"])){
             <label for="password">Password</label>
             <input type="password" class="form-control" id="password" name="password" placeholder="password">
         </div>
+            <table>
+                <img src="authimg.php?authunm=<?echo $authnum?>"></img>
+                輸入驗證碼：<input type="text" name="authinput" id="authinput">
+                <input type="button" name="auth" id="auth" value="提交"><br>
+                <input type="text" style="border:0;" id="YorN" disabled="disabled">
+                
+            </table>
         <div class="form-check">
             <input type="checkbox" class="form-check-input" id="rember" name="rember">
             <label class="form-check-label" for="remeber">rember me</label>
         </div>
-        <button type="submit" class="btn btn-primary" name="homebtn">Submit</button>
+        <button type="submit" class="btn btn-primary" disabled="disabled" name="homebtn" id="homebtn">Submit</button>
         </form>
         </p>
+        
         </div>
         <div id="tab2" class="container tab-pane fade">
         <p>

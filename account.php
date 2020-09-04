@@ -1,14 +1,19 @@
 <?php
 session_start();
 if(isset($_SESSION["name"])){
+    $id=$_SESSION["id"];
     $user=$_SESSION["name"];
+    require "condb.php";
+    $sql="select accountName,phone,balance,showb from user_account where userId= $id";
+    $result=mysqli_query($link,$sql);
 }else{
     header("location: index.php");
     exit();
 }
 
 if(isset($_POST["okbtn_out"])){
-    $cashout=$_POST["cashout"];
+    $max=9999999999999;
+    $cashout=$_POST["cashout_hide"];
     $pwd_out=$_POST["pwd_out"];
     require "condb.php";
     $pass="select passwd,balance from users where userName = '$user'";
@@ -16,19 +21,25 @@ if(isset($_POST["okbtn_out"])){
     // echo $cashout;
     $result_pass=mysqli_query($link,$pass);
     $row_pass=mysqli_fetch_assoc($result_pass);
-    if($row_pass["balance"]>=$cashout){
-        if(password_verify($pwd_out,$row_pass["passwd"])){
-            echo "交易進行中";
-            $out_pass=$row_pass["balance"]-$cashout;
-            $out_true="update users set balance=$out_pass where userName = '$user' ";
-            $result_out_true=mysqli_query($link,$out_true);
-            header("refresh:2;url= account.php");
-        }else{echo "密碼錯誤";}
-    }else{echo "餘額不足";}
+    if($cashout>$max){
+        echo "您已違反條例";
+        header("refresh:1;url= account.php");
+    }else{
+        if($row_pass["balance"]>=$cashout){
+            if(password_verify($pwd_out,$row_pass["passwd"])){
+                echo "交易進行中";
+                $out_pass=intval($row_pass["balance"])-intval($cashout);
+                $out_true="update users set balance=$out_pass where userName = '$user' ";
+                $result_out_true=mysqli_query($link,$out_true);
+                header("refresh:1;url= account.php");
+            }else{echo "密碼錯誤";}
+        }else{echo "餘額不足";}
+    }
+        
 }
 if(isset($_POST["okbtn_in"])){
     $max=9999999999999;
-    $cashin=$_POST["cashin"];
+    $cashin=$_POST["cashin_hide"];
     $pwd_in=$_POST["pwd_in"];
     require "condb.php";
     $pass_in="select passwd,balance from users where userName = '$user'";
@@ -45,11 +56,11 @@ if(isset($_POST["okbtn_in"])){
             // echo $in_pass;
             $in_true="update users set balance=$in_pass where userName = '$user' ";
             $result_in_true=mysqli_query($link,$in_true);
-            header("refresh:2;url= account.php");
+            header("refresh:1;url= account.php");
         }else{echo "密碼錯誤";}
     }else{
         echo "操作有誤,請洽客服";
-        header("refresh:2;url= account.php");
+        header("refresh:1;url= account.php");
     }
 }
 
@@ -71,22 +82,52 @@ if(isset($_POST["okbtn_in"])){
     <script type="text/javascript">
         $(document).ready(test);
         function test(){
+            $("#cashout").on("keyup",function(){
+                $("#cashout_hide").val($("#cashout").val());
+            }); 
             $("#fastselect_out").on("change",function(){
+                var x=$("#fastselect_out").val();  
+                function re(x){
+                    var num = x.toString();
+                    var pattern= /(-?\d+)(\d{3})/;
+                    while(pattern.test(num)){
+                        num= num.replace(pattern,"$1,$2");
+                    }
+                    return num;
+                }
                 if($("#fastselect_out").val()=="0"){
                     $("#cashout").val("");
-                    $("#cashout").prop("readonly",false);
+                    $("#cashout_hide").val("");
+                    $("#cashout").prop("disabled",false);
                 }else{
-                    $("#cashout").val($("#fastselect_out").val());
-                    $("#cashout").prop("readonly",true);
+                    $("#cashout").val(re(x));
+                    $("#cashout_hide").val($("#fastselect_out").val());
+                    $("#cashout").prop("disabled",true);
+                    $("#cashout_hide").prop("readonly",true);
                 }
             })
+            $("#cashin").on("keyup",function(){
+                $("#cashin_hide").val($("#cashin").val());
+            }); 
             $("#fastselect_in").on("change",function(){
+                var y=$("#fastselect_in").val();  
+                function re(y){
+                    var num_in = y.toString();
+                    var pattern= /(-?\d+)(\d{3})/;
+                    while(pattern.test(num_in)){
+                        num_in= num_in.replace(pattern,"$1,$2");
+                    }
+                    return num_in;
+                }
                 if($("#fastselect_in").val()=="0"){
                     $("#cashin").val("");
-                    $("#cashin").prop("readonly",false);
+                    $("#cashin_hide").val("");
+                    $("#cashin").prop("disabled",false);
                 }else{
-                    $("#cashin").val($("#fastselect_in").val());
-                    $("#cashin").prop("readonly",true);
+                    $("#cashin").val(re(y));
+                    $("#cashin_hide").val($("#fastselect_in").val())
+                    $("#cashin").prop("disabled",true);
+                    $("#cashin_hide").prop("readonly",true);
                 }
             })
         }
@@ -119,24 +160,29 @@ if(isset($_POST["okbtn_in"])){
     </ul>
     <div class="tab-content ">
         <div id="tab1" class="container tab-pane active">
-        <p><span style="float:right"><a href="index.php" type="button" class="badge badge-info">申請帳戶</a></span>
-        
+        <span style="float:right"><button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">申請帳戶</button></span>
+        <!-- <p><span style="float:right"><a href="index.php" type="button" class="badge badge-info">申請帳戶</a></span>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        test
+        </button> -->
         <table class="table tabel-striped">
             <thead>
                 <tr>
                     <th>帳戶</th>
-                    <th>信箱</th>
                     <th>手機</th>
                     <th>餘額</th>
+                    <th>是否顯示餘額</th>
                 </tr>
             </thead>
             <tbody>
+                <?php while($row=mysqli_fetch_assoc($result)){?>
                 <tr>
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
+                    <th><?=$row["accountName"]?></th>
+                    <th><?=$row["phone"]?></th>
+                    <th><?=$row["balance"]?></th>
+                    <th><?=$row["showb"]?></th>
                 </tr>
+                <?php } ?>
             </tbody>
         </table>        
         </p>
@@ -144,11 +190,14 @@ if(isset($_POST["okbtn_in"])){
         <div id="tab2" class="container tab-pane fade">
         <p>
         <form method="post" >
+        <input type="hidden" id="cashout_hide" name="cashout_hide" value="">
         <label for="select">一般輸入/快速選擇</label>
         <div class="form-row">
             <div class="form-group col-md-6">
+                
                 <label for="cashout">提款金額</label>
                 <input type="text" class="form-control" id="cashout" name="cashout" value="">
+                
             </div>
             <div class="form-group col-md-3">
                 <label for="fastselect_out">快速選擇</label>
@@ -177,6 +226,7 @@ if(isset($_POST["okbtn_in"])){
         <div id="tab3" class="container tab-pane fade">
         <p>
             <form method="post">
+            <input type="hidden" id="cashin_hide" name="cashin_hide" value="">
             <label for="select">一般輸入/快速選擇</label>
             <div class="form-row">
                 <div class="form-group col-md-6">
@@ -234,5 +284,33 @@ if(isset($_POST["okbtn_in"])){
         </p>
         </div>       
     </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post">
+            <div class="form-group">
+                <label for="accountname">帳戶名稱</label>
+                <input type="text" class="form-control" id="accountname" name="accountname" placeholder="username">
+            </div>
+            <div class="form-group">
+                <label for="phone">手機</label>
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="0912345678">
+            </div>
+            
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">線上申請</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
