@@ -8,25 +8,28 @@ if(isset($_GET["logout"])){
     exit();
 }
 if(isset($_POST["okbtn"])){
+    $num=rand(100000000,999999999);
+    $first_num=strval($num).strval(0);
     $password=$_POST["npassword"];
     $email=$_POST["email"];
     $userName=$_POST["nusername"];
     $phone=$_POST["phone"];
-    $birth=$_POST["birth"];
     $options=[
         'cost' =>12
     ];
     $hash = password_hash($password, PASSWORD_DEFAULT,$options);
-    $sql="insert into users (email,userName,birth,phone,passwd)
-    values ('$email','$userName',$birth,'$phone','$hash')";
+    $sql="insert into users (email,userName,phone,passwd,num)
+    values ('$email','$userName','$phone','$hash','$first_num')";
     // echo $sql;
     $result=mysqli_query($link,$sql);
-    $search="select userId from users";
-    $result_new=mysqli_query($link,$search);
-    $row_user=mysqli_fetch_assoc($result_new);
+    $search="select userId,num from users where userName='$userName'";
+    $result_new=@mysqli_query($link,$search);
+    $row_user=@mysqli_fetch_assoc($result_new);
     $newId=$row_user["userId"];
-    $sql2="insert into user_account (userId,accountName,phone,balance,showb)
-    values ($newId,'$userName','$phone',1000,1)";
+    $newnum=$row_user["num"];
+    $sql2="insert into user_account (userId,accountName,accountNum,sta,balance,showb)
+    values ($newId,'$userName','$newnum','主帳號',1000,1)";
+    // echo $sql2;
     $result_account=mysqli_query($link,$sql2);
 }
 if(isset($_POST["homebtn"])){
@@ -145,21 +148,14 @@ $_SESSION['authnum']=$authnum;
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
-                <label for="birth">birthday</label>
-                <input type="date" class="form-control" id="birth" name="birth" >
-            </div>
-            <div class="form-group col-md-6">
                 <label for="phone">phone</label>
                 <input type="text" class="form-control" id="phone" name="phone" placeholder="0912345678">
             </div>
         </div>
         <div class="form-row">
-        <div class="form-group col-md-11">
+        <div class="form-group col-md-12">
             <label for="npassword">password</label>
             <input type="password" class="form-control" id="npassword" name="npassword" placeholder="password"/>
-        </div>
-        <div class="form-group col-md-1">
-            <label for="eye"></label>
         </div>
         </div>
         <div class="form-group">

@@ -4,8 +4,12 @@ if(isset($_SESSION["name"])){
     $id=$_SESSION["id"];
     $user=$_SESSION["name"];
     require "condb.php";
-    $sql="select accountName,phone,balance,showb from user_account where userId= $id";
+    $sql="select accountNum,accountName,balance,showb from user_account where userId= $id and sta='主帳號'";
     $result=mysqli_query($link,$sql);
+    $row_search=mysqli_fetch_assoc($result);
+    $num=$row_search["accountNum"];
+    $sql2="select num,inorout,balance,handfee,trandate,handorauto from detail where num='$num'";
+    $result2=@mysqli_query($link,$sql2);
 }else{
     header("location: index.php");
     exit();
@@ -16,7 +20,8 @@ if(isset($_POST["okbtn_out"])){
     $cashout=$_POST["cashout_hide"];
     $pwd_out=$_POST["pwd_out"];
     require "condb.php";
-    $pass="select passwd,balance from users where userName = '$user'";
+    $pass="select passwd,balance,num from users u join user_account ua
+    on ua.userId=u.userId where userName = '$user'";
     // echo $pass;
     // echo $cashout;
     $result_pass=mysqli_query($link,$pass);
@@ -27,9 +32,14 @@ if(isset($_POST["okbtn_out"])){
     }else{
         if($row_pass["balance"]>=$cashout){
             if(password_verify($pwd_out,$row_pass["passwd"])){
+                $num=$row_pass["num"];
+                $time=date("Y-m-d H:i:s");
                 echo "交易進行中";
                 $out_pass=intval($row_pass["balance"])-intval($cashout);
-                $out_true="update users set balance=$out_pass where userName = '$user' ";
+                $out_true="update user_account set balance=$out_pass where accountName = '$user' ";
+                $insert_out="insert into detail values('$num','提款','$cashout',0,'$time','手動')";
+                // echo $insert_out;
+                $result_insert_out=mysqli_query($link,$insert_out);
                 $result_out_true=mysqli_query($link,$out_true);
                 header("refresh:1;url= account.php");
             }else{echo "密碼錯誤";}
@@ -42,7 +52,8 @@ if(isset($_POST["okbtn_in"])){
     $cashin=$_POST["cashin_hide"];
     $pwd_in=$_POST["pwd_in"];
     require "condb.php";
-    $pass_in="select passwd,balance from users where userName = '$user'";
+    $pass_in="select passwd,balance,num from users u join user_account ua
+    on ua.userId=u.userId where userName = '$user'";
     // echo $pass_in;
     // echo $cashout;
     // echo $max,$cashin;
@@ -53,9 +64,13 @@ if(isset($_POST["okbtn_in"])){
         if(password_verify($pwd_in,$row_in_pass["passwd"])){
             echo "交易進行中";
             $in_pass=$row_in_pass["balance"]+$cashin;
+            $num=$row_in_pass["num"];
+            $time=date("Y-m-d H:i:s");
             // echo $in_pass;
-            $in_true="update users set balance=$in_pass where userName = '$user' ";
+            $in_true="update user_account set balance=$in_pass where accountName = '$user' ";
+            $insert_in="insert into detail values('$num','存款','$cashin',0,'$time','手動')";
             $result_in_true=mysqli_query($link,$in_true);
+            $result_insert=mysqli_query($link,$insert_in);
             header("refresh:1;url= account.php");
         }else{echo "密碼錯誤";}
     }else{
@@ -81,7 +96,14 @@ if(isset($_POST["okbtn_in"])){
     <script type="text/javascript" src="./jquery.min.js"></script>
     <script type="text/javascript">
         $(document).ready(test);
+
         function test(){
+            $("#tableSearch").on("keyup", function() {
+				var value = $(this).val().toLowerCase();
+				$("#myTable tr").filter(function() {
+				$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+				});
+			});
             $("#cashout").on("keyup",function(){
                 $("#cashout_hide").val($("#cashout").val());
             }); 
@@ -160,7 +182,6 @@ if(isset($_POST["okbtn_in"])){
     </ul>
     <div class="tab-content ">
         <div id="tab1" class="container tab-pane active">
-        <span style="float:right"><button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">申請帳戶</button></span>
         <!-- <p><span style="float:right"><a href="index.php" type="button" class="badge badge-info">申請帳戶</a></span>
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
         test
@@ -168,23 +189,43 @@ if(isset($_POST["okbtn_in"])){
         <table class="table tabel-striped">
             <thead>
                 <tr>
-                    <th>帳戶</th>
-                    <th>手機</th>
+                    <th>編號</th>
+                    <th>主帳戶</th>
                     <th>餘額</th>
-                    <th>是否顯示餘額</th>
+                    <th>顯示餘額</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while($row=mysqli_fetch_assoc($result)){?>
                 <tr>
+                    <th><?=$row["accountNum"]?></th>
                     <th><?=$row["accountName"]?></th>
-                    <th><?=$row["phone"]?></th>
                     <th><?=$row["balance"]?></th>
                     <th><?=$row["showb"]?></th>
                 </tr>
                 <?php } ?>
             </tbody>
-        </table>        
+        </table>
+        <table class="table tabel-striped">
+            <thead>
+                <tr>
+                <span style="float:right"><button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">申請子帳號</button></span>
+                    <th>編號</th>
+                    <th>主帳戶</th>
+                    <th>餘額</th>
+                    <th>顯示餘額</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <th>123</th>
+                    <th>456</th>
+                    <th>1</th>
+                    <th>45</th>
+                </tr>
+            </tbody>
+        </table>
         </p>
         </div>
         <div id="tab2" class="container tab-pane fade">
@@ -258,8 +299,9 @@ if(isset($_POST["okbtn_in"])){
         </p>
         </div>
         <div id="tab4" class="container tab-pane fade">
-        <p>test
+        <p>
             <table class="table tabel-striped">
+            <input class="form-control mb-4" id="tableSearch" type="text"placeholder="輸入關鍵字查詢">
                 <thead>
                     <tr>
                         <th>編號</th>
@@ -270,15 +312,17 @@ if(isset($_POST["okbtn_in"])){
                         <th>交易方式</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="myTable">
+                <?php while($row2=mysqli_fetch_assoc($result2)){?>
                     <tr>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>0</th>
-                        <th>4</th>
-                        <th>ATM/銀行分行</th>
+                        <th><?=$row2["num"]?></th>
+                        <th><?=$row2["inorout"]?></th>
+                        <th><?=$row2["balance"]?></th>
+                        <th><?=$row2["handfee"]?></th>
+                        <th><?=$row2["trandate"]?></th>
+                        <th><?=$row2["handorauto"]?></th>
                     </tr>
+                <?php } ?>
                 </tbody>
             </table>
         </p>
@@ -296,12 +340,16 @@ if(isset($_POST["okbtn_in"])){
       <div class="modal-body">
         <form method="post">
             <div class="form-group">
-                <label for="accountname">帳戶名稱</label>
+                <label for="accountname">申請項目</label>
+                <input type="text" class="form-control" id="accountname" name="accountname" disabled="disabled" placeholder="加開子帳號">
+            </div>
+            <div class="form-group">
+                <label for="accountname">子帳戶名稱</label>
                 <input type="text" class="form-control" id="accountname" name="accountname" placeholder="username">
             </div>
             <div class="form-group">
-                <label for="phone">手機</label>
-                <input type="text" class="form-control" id="phone" name="phone" placeholder="0912345678">
+                <label for="phone">安全機制--請輸入使用者密碼</label>
+                <input type="password" class="form-control" id="phone" name="passwrod" placeholder="password">
             </div>
             
         </form>
