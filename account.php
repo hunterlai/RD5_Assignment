@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 if(isset($_SESSION["name"])){
     $id=$_SESSION["id"];
@@ -6,6 +7,8 @@ if(isset($_SESSION["name"])){
     require "condb.php";
     $sql="select accountNum,accountName,balance,showb from user_account where userId= $id and sta='主帳號'";
     $result=mysqli_query($link,$sql);
+    $result_meau=mysqli_query($link,$sql);
+    // echo $sql;
     $row_search=mysqli_fetch_assoc($result);
     $num=$row_search["accountNum"];
     $sql2="select num,inorout,balance,handfee,trandate,handorauto from detail where num='$num'";
@@ -76,6 +79,29 @@ if(isset($_POST["okbtn_in"])){
     }else{
         echo "操作有誤,請洽客服";
         header("refresh:1;url= account.php");
+    }
+}
+if(isset($_POST["online"])){
+    $id=$_SESSION["id"];
+    require "condb.php";
+    $parname=$_POST["parname"];
+    $apppwd=$_POST["apppwd"];
+    $sql_app="select accountNum,accountName,passwd,sta from user_account ua join users u on
+    u.userName = ua.accountName where ua.userId= $id and sta='0'";
+    // echo $sql_app;
+    $result_app=mysqli_query($link,$sql_app);
+    $row_app=mysqli_fetch_assoc($result_app);
+    $app_num=substr($row_app["accountNum"],0,-1);
+    $app_pwd=$row_app["passwd"];
+
+    if(password_verify($apppwd,$app_pwd)){
+       $count+=1;
+       $app_insert="insert into user_account(userid,accountName,accountNum,sta,act,balance,showb)
+       values($id,$parname',$app_num,,'null',0,'1')";
+       echo $app_insert;
+
+    }else{
+        echo "wrong";
     }
 }
 
@@ -196,7 +222,7 @@ if(isset($_POST["okbtn_in"])){
                 </tr>
             </thead>
             <tbody>
-                <?php while($row=mysqli_fetch_assoc($result)){?>
+                <?php while($row=mysqli_fetch_assoc($result_meau)){?>
                 <tr>
                     <th><?=$row["accountNum"]?></th>
                     <th><?=$row["accountName"]?></th>
@@ -211,17 +237,18 @@ if(isset($_POST["okbtn_in"])){
                 <tr>
                 <span style="float:right"><button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">申請子帳號</button></span>
                     <th>編號</th>
-                    <th>主帳戶</th>
-                    <th>餘額</th>
-                    <th>顯示餘額</th>
+                    <th>子帳戶</th>
+                    <th>狀態</th>
+                    <TH>餘額</th>
+                    <th>功能</th>
                 </tr>
             </thead>
             <tbody>
-
                 <tr>
                     <th>123</th>
                     <th>456</th>
                     <th>1</th>
+                    <th>
                     <th>45</th>
                 </tr>
             </tbody>
@@ -332,7 +359,7 @@ if(isset($_POST["okbtn_in"])){
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">子帳號申請</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -340,23 +367,22 @@ if(isset($_POST["okbtn_in"])){
       <div class="modal-body">
         <form method="post">
             <div class="form-group">
-                <label for="accountname">申請項目</label>
-                <input type="text" class="form-control" id="accountname" name="accountname" disabled="disabled" placeholder="加開子帳號">
+                <label for="app">申請項目</label>
+                <input type="text" class="form-control" id="app" name="app" disabled="disabled" placeholder="加開子帳號">
             </div>
             <div class="form-group">
-                <label for="accountname">子帳戶名稱</label>
-                <input type="text" class="form-control" id="accountname" name="accountname" placeholder="username">
+                <label for="parname">子帳戶名稱</label>
+                <input type="text" class="form-control" id="parname" name="parname" placeholder="username">
             </div>
             <div class="form-group">
-                <label for="phone">安全機制--請輸入使用者密碼</label>
-                <input type="password" class="form-control" id="phone" name="passwrod" placeholder="password">
+                <label for="apppwd">安全機制--請輸入使用者密碼</label>
+                <input type="password" class="form-control" id="apppwd" name="apppwd" placeholder="password">
             </div>
-            
+      </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" id="online" name="online">線上申請</button>
+        </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary">線上申請</button>
-      </div>
     </div>
   </div>
 </div>
