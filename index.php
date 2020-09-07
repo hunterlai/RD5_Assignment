@@ -116,17 +116,19 @@ $_SESSION['authnum']=$authnum;
 
             $("#nusername").on("keyup",function(){
                 var t=$("#nusername").val();
-                
                 $.getJSON("same.php",{id:t},function(ans){
                     if(ans==1){
                         $("#nuser").val("名稱已被使用");
                         $("#nuser").css("color","red");
                         $("#okbtn").prop("disabled",true);
                         $("#sure").prop("disabled",true);
-                    }else{
+                    }else if(ans==2){
                         $("#nuser").val("名稱尚未被使用");
                         $("#nuser").css("color","green");
                         $("#sure").prop("disabled",false);
+                    }else{
+                        $("#nuser").val("請輸入值");
+                        $("#nuser").css("color","blue");
                     }  
                 });    
             });
@@ -267,12 +269,12 @@ $_SESSION['authnum']=$authnum;
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="nusername">user<input type="text"  id="nuser" disabled="disabled" class="input_text"></label>
-                <input type="text" class="form-control" id="nusername" name="nusername" placeholder="ur big name">
+                <input type="text" class="form-control" pattern="\w+" title="p.s開頭請輸入英文或數字" id="nusername" name="nusername" placeholder="ur big name">
                 
             </div>
             <div class="form-group col-md-6">
                 <label for="birth">birth<input type="text"  id="nbirth" disabled="disabled" class="input_text"></label>
-                <input type="date" class="form-control" pattern="\d{10}" id="birth" name="birth" value="<?php echo date("Y-m-d");?>" min="<?php echo date("Y-m-d",strtotime("-100 year"));?>" max="<?php echo date("Y-m-d");?>"  >
+                <input type="date" class="form-control" id="birth" name="birth" value="<?php echo date("Y-m-d");?>" min="<?php echo date("Y-m-d",strtotime("-100 year"));?>" max="<?php echo date("Y-m-d");?>"  >
             </div>
         </div>
         <div class="form-row">
