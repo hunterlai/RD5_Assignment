@@ -131,13 +131,13 @@ if(isset($_POST["show_long"])){
     $result_showb=mysqli_query($link,$sql_showb);
     header("location: account.php");
 }
-if(isset($_POST["datestr"])){
-    $sta=$row_par_date["sta"];
-    $id=$_SESSION["id"];
-    $date=explode("-",$_POST["pardate"]);
-    $sql_date="update user_account set act='每個月$date[2]自動撥款' where userId=$id and sta=$sta";
-    echo $sql_date;
-}
+// if(isset($_POST["datestr"])){
+//     $sta=$row_par_date["sta"];
+//     $id=$_SESSION["id"];
+//     $date=explode("-",$_POST["pardate"]);
+//     $sql_date="update user_account set act='每個月$date[2]自動撥款' where userId=$id and sta=$sta";
+//     echo $sql_date;
+// }
 ?>
 
 
@@ -454,7 +454,7 @@ if(isset($_POST["datestr"])){
         <form method="post">
             <div class="form-group">
                 <label for="parname">子帳戶名稱</label>
-                <input type="text" class="form-control" id="parname" name="parname" value="<?=$row_par_date["accountName"]?>">
+                <input type="text" class="form-control" id="parname" name="parname" >
             </div>
             <div class="form-group">
                 <label for="pardate">輸入日期</label>
