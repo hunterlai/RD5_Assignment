@@ -224,7 +224,6 @@ $_SESSION['authnum']=$authnum;
         </li>
         <li class="nav-item">
             <a href="#tab2" data-toggle="tab" class="nav-link ">註冊</a>
-
         </li>
     </ul>
     <div class="tab-content ">
@@ -234,9 +233,7 @@ $_SESSION['authnum']=$authnum;
         <div class="form-group">
             <label for="username">user</label>
             <input type="text" class="form-control" id="username" name="username" placeholder="username">
-
         </div>
-        
         <div class="form-group">
             <label for="password">Password</label>
             <input type="password" class="form-control" id="password" name="password" placeholder="password">

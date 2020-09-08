@@ -51,7 +51,9 @@ if(isset($_POST["okbtn_out"])){
                 $result_out_true=mysqli_query($link,$out_true);
                 header("refresh:1;url= account.php");
             }else{echo "密碼錯誤";}
-        }else{echo "餘額不足";}
+        }else{
+            echo "餘額不足";
+            header("refresh:1;url= account.php");}
     }
         
 }
@@ -319,7 +321,7 @@ if(isset($_POST["show_long"])){
             <div class="form-group col-md-6">
                 
                 <label for="cashout">提款金額</label>
-                <input type="text" class="form-control" id="cashout" name="cashout" value="">
+                <input type="text" class="form-control" id="cashout" name="cashout" value="" pattern="\d+" title="請輸入阿拉伯數字">
                 
             </div>
             <div class="form-group col-md-3">
@@ -354,7 +356,7 @@ if(isset($_POST["show_long"])){
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="cashin">存款金額</label>
-                    <input type="text" class="form-control" id="cashin" name="cashin" >
+                    <input type="text" class="form-control" id="cashin" name="cashin" pattern="\d+" title="請輸入阿拉伯數字" >
                 </div>
                 <div class="form-group col-md-3">
                     <label for="fastselect_in">快速選擇</label>
@@ -376,7 +378,7 @@ if(isset($_POST["show_long"])){
                 <input type="password" class="form-control" id="pwd_in" name="pwd_in" placeholder="password"/>
             </div>
             </div>
-            <button type="submit" class="btn btn-primary" name="okbtn_in">送出</button>
+            <button type="submit" class="btn btn-primary" name="okbtn_in" >送出</button>
             </form>
         </p>
         </div>
