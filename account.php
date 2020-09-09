@@ -21,6 +21,7 @@ if(isset($_SESSION["name"])){
     
 
 
+
 }else{
     header("location: index.php");
     exit();
@@ -47,7 +48,7 @@ if(isset($_POST["okbtn_out"])){
                 $time=date("Y-m-d H:i:s");
                 echo "交易進行中";
                 $out_pass=intval($row_pass["balance"])-intval($cashout);
-                $out_true="update user_account set balance=$out_pass where accountName = '$user' ";
+                $out_true="update user_account set balance=$out_pass where accountName = '$user' and accountNum='$num' ";
                 $insert_out="insert into detail values('$num','提款','$cashout',0,'$time','手動')";
                 // echo $insert_out;
                 $result_insert_out=mysqli_query($link,$insert_out);
@@ -80,7 +81,7 @@ if(isset($_POST["okbtn_in"])){
             $num=$row_in_pass["num"];
             $time=date("Y-m-d H:i:s");
             // echo $in_pass;
-            $in_true="update user_account set balance=$in_pass where accountName = '$user' ";
+            $in_true="update user_account set balance=$in_pass where accountName = '$user' and accountNum='$num'";
             $insert_in="insert into detail values('$num','存款','$cashin',0,'$time','手動')";
             $result_in_true=mysqli_query($link,$in_true);
             $result_insert=mysqli_query($link,$insert_in);
@@ -114,7 +115,7 @@ if(isset($_POST["online"])){
        $count+=1;
        $app_num=strval($app_num).strval($count);
        $app_insert="insert into user_account(userid,accountName,accountNum,sta,act,balance,showb)
-       values($id,'$parname',$app_num,$count,'null',0,'1')";
+       values($id,'$parname',$app_num,$count,'尚未定約',0,'1')";
     //    echo $app_insert;
        $result_app_insert=mysqli_query($link,$app_insert);
        header("location: account.php");
@@ -226,6 +227,9 @@ if(isset($_POST["datestr"])){
                     $("#show").val("show");
                 }
             })
+            $("#try1").on("click",function(){
+                alert("OK");
+            })
         }
     </script>
     <style>
@@ -306,7 +310,7 @@ if(isset($_POST["datestr"])){
                     <td><?=$row_par["act"]?></td>
                     <td><?=$row_par["balance"]?></td>
                     <td>
-                    <input type="submit"  class="btn btn-outline-success btn-sm" id="setdate" data-toggle="modal" data-target="#Modal2" value="每個月自動撥款">
+                    <a href="setmonth.php?sta=<?=$row_par["sta"]?>&id=<?=$id?>" class="btn btn-outline-success btn-sm">每個月自動撥款</a>
                     |
                     <input type="submit"  class="btn btn-outline-danger btn-sm" value="取消自動">
                     </td>

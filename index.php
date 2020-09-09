@@ -311,8 +311,10 @@ $_SESSION['authnum']=$authnum;
             <p>2.已經被註冊的名稱無法在註冊</p>
             <p>3.註冊完之後會有開戶金1000元</p>
             <p>4.必須完成驗證碼才能登入</p>
-            <p>5.</p>
-            <p>5.總存款及提款上限為9999999999999超過則會交易失敗</p>
+            <p>5.可創子帳戶方便規劃理財,每個月轉帳給子帳號去處理帳單或旅遊基金,目前介面完成功能尚未</p>
+            <p>6.總存款及提款上限為9999999999999超過則會交易失敗</p>
+            <p>7.可快速選擇存提款金額</p>
+            <p>8.透過關鍵字搜尋明細項目</p>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
