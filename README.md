@@ -16,3 +16,4 @@
 
 8.透過關鍵字搜尋明細項目
 
+![image](https://github.com/hunterlai/RD5_Assignment/blob/master/b1.jpg)
