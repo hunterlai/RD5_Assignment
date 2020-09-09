@@ -289,13 +289,37 @@ $_SESSION['authnum']=$authnum;
         <div class="form-check">
             <input type="checkbox" class="form-check-input" id="agreed">
             <label class="form-check-label" for="agreed">agreed rule</label>
-            <a href="rule">rule list</a><input type="text"  id="ckbox" disabled="disabled" class="input_text" >
+            <a data-toggle="modal" href="#myModal">rule</a><input type="text"  id="ckbox" disabled="disabled" class="input_text" >
         </div>
         <button type="button" class="btn btn-primary" name="sure" id="sure" >確認</button>
         <button type="submit" class="btn btn-primary" name="okbtn" id="okbtn" disabled="disabled">送出</button>
         </form>
         </p>
         </div>
+    </div>
+    
+    <div id="myModal" class="modal fade" role="dialog">
+     <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+        <div class="modal-header">
+        <h4 class="modal-title">內容規則</h4>
+        </div>
+        <div class="modal-body">
+            <p>1.必須填完所有項目確認後才能註冊</p>
+            <p>2.已經被註冊的名稱無法在註冊</p>
+            <p>3.註冊完之後會有開戶金1000元</p>
+            <p>4.必須完成驗證碼才能登入</p>
+            <p>5.</p>
+            <p>5.總存款及提款上限為9999999999999超過則會交易失敗</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+
+    </div>
     </div>
 </body>
 </html>

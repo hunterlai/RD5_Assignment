@@ -17,6 +17,9 @@ if(isset($_SESSION["name"])){
     $result_par=mysqli_query($link,$parsql);
     $result_par_date=mysqli_query($link,$parsql);
     $row_par_date=mysqli_fetch_assoc($result_par_date);
+    
+    
+
 
 }else{
     header("location: index.php");
@@ -133,13 +136,13 @@ if(isset($_POST["show_long"])){
     $result_showb=mysqli_query($link,$sql_showb);
     header("location: account.php");
 }
-// if(isset($_POST["datestr"])){
-//     $sta=$row_par_date["sta"];
-//     $id=$_SESSION["id"];
-//     $date=explode("-",$_POST["pardate"]);
-//     $sql_date="update user_account set act='每個月$date[2]自動撥款' where userId=$id and sta=$sta";
-//     echo $sql_date;
-// }
+if(isset($_POST["datestr"])){
+    $sta=$row_par_date["sta"];
+    $id=$_SESSION["id"];
+    $date=explode("-",$_POST["pardate"]);
+    $sql_date="update user_account set act='每個月$date[2]自動撥款' where userId=$id and sta=$sta";
+    echo $sql_date;
+}
 ?>
 
 
@@ -295,6 +298,7 @@ if(isset($_POST["show_long"])){
                 </tr>
             </thead>
             <tbody>
+                
                 <?php while($row_par=mysqli_fetch_assoc($result_par)){?>
                 <tr>
                     <td><?=$row_par["accountNum"]?></td>
@@ -302,7 +306,7 @@ if(isset($_POST["show_long"])){
                     <td><?=$row_par["act"]?></td>
                     <td><?=$row_par["balance"]?></td>
                     <td>
-                    <input type="submit"  class="btn btn-outline-success btn-sm"data-toggle="modal" data-target="#Modal2" value="每個月自動撥款">
+                    <input type="submit"  class="btn btn-outline-success btn-sm" id="setdate" data-toggle="modal" data-target="#Modal2" value="每個月自動撥款">
                     |
                     <input type="submit"  class="btn btn-outline-danger btn-sm" value="取消自動">
                     </td>
@@ -397,7 +401,7 @@ if(isset($_POST["show_long"])){
                     </tr>
                 </thead>
                 <tbody id="myTable">
-                <?php while($row2=mysqli_fetch_assoc($result2)){?>
+                <?php while($row2=mysqli_fetch_assoc($result2)){ ?>
                     <tr>
                         <th><?=$row2["num"]?></th>
                         <th><?=$row2["inorout"]?></th>
